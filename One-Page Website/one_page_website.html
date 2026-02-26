@@ -120,7 +120,7 @@
         }
 
         .lightbox img {
-            max-width: 90%;
+            max-width: 80%;
             max-height: 80%;
             border-radius: 10px;
             border: 3px solid #00eaff;
@@ -136,9 +136,30 @@
             font-weight: bold;
         }
 
-        .close-btn:hover {
-            color: white;
+        /* --- New Slideshow Buttons --- */
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 234, 255, 0.2);
+            color: #00eaff;
+            padding: 20px;
+            font-size: 30px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            user-select: none;
+            transition: 0.3s;
         }
+
+        .nav-btn:hover {
+            background: #00eaff;
+            color: black;
+        }
+
+        #prevBtn { left: 20px; }
+        #nextBtn { right: 20px; }
+
     </style>
 </head>
 
@@ -159,32 +180,26 @@
     <section id="gallery">
         <h2>My Gallery</h2>
         <p>A collection of images that inspire my creativity.</p>
-
-        <img src="https://via.placeholder.com/300/00eaff/000000" alt="Image 1">
-        <img src="https://via.placeholder.com/300/00eaff/000000" alt="Image 2">
-        <img src="https://via.placeholder.com/300/00eaff/000000" alt="Image 3">
+        <img src="https://via.placeholder.com/300/00eaff/000000?text=Image+1" alt="Image 1">
+        <img src="https://via.placeholder.com/300/ff00ea/000000?text=Image+2" alt="Image 2">
+        <img src="https://via.placeholder.com/300/00ffaa/000000?text=Image+3" alt="Image 3">
     </section>
 
     <section id="video">
         <h2>Featured Video</h2>
         <p>One of my favorite videos.</p>
-
         <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
     </section>
 
     <section id="contact">
         <h2>Contact Me</h2>
-
         <form>
             <label>Name:</label>
             <input type="text" placeholder="Your Name">
-
             <label>Email:</label>
             <input type="email" placeholder="Your Email">
-
             <label>Message:</label>
             <textarea rows="5" placeholder="Your Message"></textarea>
-
             <button type="submit">Send</button>
         </form>
     </section>
@@ -193,10 +208,12 @@
         <p>© 2026 | Website by Ayman Shahrour</p>
     </footer>
 
-    <!-- LIGHTBOX MODAL -->
     <div class="lightbox" id="lightbox">
         <span class="close-btn" id="closeLightbox">&times;</span>
+        
+        <button class="nav-btn" id="prevBtn">&#10094;</button>
         <img id="lightboxImg" src="">
+        <button class="nav-btn" id="nextBtn">&#10095;</button>
     </div>
 
     <script>
@@ -204,14 +221,44 @@
         const lightbox = document.getElementById("lightbox");
         const lightboxImg = document.getElementById("lightboxImg");
         const closeBtn = document.getElementById("closeLightbox");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
 
-        galleryImages.forEach(img => {
+        let currentIndex = 0; // Keep track of which image is open
+
+        // Function to update the lightbox content
+        function showImage(index) {
+            if (index >= galleryImages.length) {
+                currentIndex = 0; // Loop back to start
+            } else if (index < 0) {
+                currentIndex = galleryImages.length - 1; // Loop to end
+            } else {
+                currentIndex = index;
+            }
+            lightboxImg.src = galleryImages[currentIndex].src;
+        }
+
+        // Open Lightbox
+        galleryImages.forEach((img, index) => {
             img.addEventListener("click", () => {
                 lightbox.style.display = "flex";
-                lightboxImg.src = img.src;
+                showImage(index);
             });
         });
 
+        // Next Button
+        nextBtn.addEventListener("click", (e) => {
+            e.stopPropagation(); // Prevents clicking the button from closing the lightbox
+            showImage(currentIndex + 1);
+        });
+
+        // Previous Button
+        prevBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            showImage(currentIndex - 1);
+        });
+
+        // Close Lightbox
         closeBtn.addEventListener("click", () => {
             lightbox.style.display = "none";
         });
@@ -219,6 +266,15 @@
         lightbox.addEventListener("click", (e) => {
             if (e.target === lightbox) {
                 lightbox.style.display = "none";
+            }
+        });
+
+        // Accessibility: Keyboard Navigation
+        window.addEventListener("keydown", (e) => {
+            if (lightbox.style.display === "flex") {
+                if (e.key === "ArrowRight") showImage(currentIndex + 1);
+                if (e.key === "ArrowLeft") showImage(currentIndex - 1);
+                if (e.key === "Escape") lightbox.style.display = "none";
             }
         });
     </script>
